@@ -7,7 +7,7 @@ resource "aws_db_instance" "this" {
   allocated_storage    = 20
   storage_type         = "gp2"
   engine               = "mysql"
-  engine_version       = "8.0.43"
+  engine_version       = "8.4.8"
   instance_class       = var.instance_class
   db_name              = var.db_name
   username             = var.db_username
@@ -17,7 +17,7 @@ resource "aws_db_instance" "this" {
   multi_az             = var.multi_az
   skip_final_snapshot  = true
   publicly_accessible  = false
-  backup_retention_period = 7
+  backup_retention_period = 1
   deletion_protection  = false
 }
 
