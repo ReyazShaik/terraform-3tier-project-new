@@ -18,3 +18,8 @@ variable "azs" {
   type        = list(string)
 }
 
+
+variable "db_subnets" {
+  description = "List of CIDRs for isolated DB subnets"
+  type        = list(string)
+}

@@ -1,16 +1,26 @@
 resource "aws_launch_template" "web" {
-  name_prefix   = "web-"
-  image_id      = var.ami_id
-  instance_type = var.instance_type
+  name_prefix            = "web-"
+  image_id               = var.ami_id
+  instance_type          = var.instance_type
   vpc_security_group_ids = var.sg_ids
-  user_data     = base64encode(var.user_data)
+  user_data = base64encode(<<-EOF
+    #!/bin/bash
+    yum install -y httpd
+    cat > /etc/httpd/conf.d/app-proxy.conf <<CONF
+    ProxyPass /api http://${var.app_alb_dns}/
+    ProxyPassReverse /api http://${var.app_alb_dns}/
+    CONF
+    systemctl enable --now httpd
+    EOF
+  )
 }
 
 resource "aws_autoscaling_group" "web" {
-  desired_capacity     = var.desired_capacity
-  min_size             = var.min_size
-  max_size             = var.max_size
-  vpc_zone_identifier  = var.subnets
+  desired_capacity    = var.desired_capacity
+  min_size            = var.min_size
+  max_size            = var.max_size
+  vpc_zone_identifier = var.subnets
+  health_check_type   = "ELB"
   launch_template {
     id      = aws_launch_template.web.id
     version = "$Latest"
@@ -50,7 +60,7 @@ resource "aws_lb_listener" "web" {
 
 resource "aws_autoscaling_attachment" "web_tg" {
   autoscaling_group_name = aws_autoscaling_group.web.name
-  lb_target_group_arn   = aws_lb_target_group.web.arn
+  lb_target_group_arn    = aws_lb_target_group.web.arn
 }
 
 output "alb_dns" {

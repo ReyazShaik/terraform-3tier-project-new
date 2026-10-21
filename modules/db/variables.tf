@@ -1,7 +1,6 @@
 variable "vpc_id" {}
 variable "subnet_ids" { type = list(string) }
 variable "db_username" {}
-variable "db_password" {}
 variable "db_name" {}
 variable "sg_ids" { type = list(string) }
 variable "multi_az" { default = false }
